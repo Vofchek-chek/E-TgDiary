@@ -33,6 +33,7 @@ pdfminer.six==20220524
 Pillow==10.0.1
 pipreqs==0.4.13
 prompt-toolkit==3.0.39
+psycopg2==2.9.9
 py-pdf-parser==0.11.0
 pycparser==2.21
 pydantic==2.3.0
@@ -41,6 +42,7 @@ pymongo==4.5.0
 pypdfium2==4.21.0
 pytesseract==0.3.10
 python-dateutil==2.8.2
+pytz==2023.3.post1
 redis==5.0.1
 requests==2.31.0
 six==1.16.0
