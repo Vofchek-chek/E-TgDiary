@@ -90,6 +90,9 @@ async def send_welcome(message: types.Message):
             microsecond=0,
         )
 
+        if date.weekday() == 6:
+            date = date + timedelta(days=1)
+
         user_info["cur_date"] = date
         user_info["glob_date"] = date
         user_info["sch_date"] = date + timedelta(
@@ -116,9 +119,15 @@ async def send_welcome(message: types.Message):
             reply_markup = ob.get_start_groups_list()
 
     else:
+        date = users_db.get_cur_user_global_date(message.chat.id)
+
+        if date.weekday() == 6:
+            date = date + timedelta(days=1)
+            users_db.update_user_date(message.chat.id, date)
+
         text, reply_markup = ob.get_diary_for_group(
             group_name=users_db.get_user_group_info(message.chat.id),
-            date=users_db.get_cur_user_global_date(message.chat.id),
+            date=date,
         )
 
     if text:
@@ -130,7 +139,9 @@ async def send_welcome(message: types.Message):
         )
 
     if not users_db.check_user_for_updates(message.chat.id):
-        users_db.set_user_up_to_date(chat_id)
+        users_db.set_user_up_to_date(
+            message.chat.id,
+        )
         await make_updates(message, ob.get_default_menu())
 
 
@@ -298,6 +309,10 @@ async def defult_menu_diary_answer(message: Message):
         await make_updates(message, ob.get_default_menu())
 
     date = users_db.get_cur_user_global_date(chat_id)
+
+    if date.weekday() == 6:
+        date = date + timedelta(days=1)
+        users_db.update_user_date(chat_id, date)
 
     text, reply_markup = ob.get_diary_for_group(
         group_name=users_db.get_user_group_info(chat_id),

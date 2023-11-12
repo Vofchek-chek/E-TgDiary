@@ -17,6 +17,15 @@ class Interaction:
     def get_cur_sch_time(self, user_id: int) -> datetime:
         return self.session.query(User.sch_date).filter_by(_id=user_id).first()[0]
 
+    def update_user_date(self, user_id: int, new_date: datetime) -> bool:
+        result = self.session.execute(
+            update(User)
+            .where(User._id == user_id)
+            .values(glob_date=new_date, cur_date=new_date)
+        )
+        self.session.commit()
+        return bool(result.rowcount)
+
     def change_cur_sch_time(self, user_id: int, new_sch_date: datetime) -> bool:
         result = self.session.execute(
             update(User).where(User._id == user_id).values(sch_date=new_sch_date)
@@ -87,7 +96,17 @@ class Interaction:
         return self.session.query(User.glob_date).filter_by(_id=user_id).first()[0]
 
     def inc_cur_user_page_date(self, user_id: int):
-        result = self.session.query(User.cur_date).filter_by(_id=user_id).first()[0]
+        result = (
+            self.session.query(User.cur_date, User.glob_date)
+            .filter_by(_id=user_id)
+            .first()
+        )
+
+        if result[0].isocalendar().week != result[1].isocalendar().week:
+            result = result[1]
+        else:
+            result = result[0]
+
         if result.weekday() < 5:
             new_date = result + timedelta(days=1)
         else:
